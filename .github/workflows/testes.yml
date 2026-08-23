@@ -1,0 +1,35 @@
+name: testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Conferir o gabarito antes de confiar em qualquer métrica
+        run: python conferir_gabarito.py
+
+      # A chave é gerada a cada execução e descartada com o runner. Chave de
+      # teste fixa dentro do repositório é o começo de toda chave vazada.
+      - name: Rodar os testes
+        run: |
+          export TRILHA_CHAVE=$(python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())")
+          python -m pytest testes/ -q
+
+      - name: Reproduzir a medição publicada no README
+        run: python avaliar.py
