@@ -1,0 +1,18 @@
+services:
+  trilha:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Gere a sua com:
+      #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+      # e coloque num arquivo .env. Nunca aqui, nunca no repositório.
+      TRILHA_CHAVE: ${TRILHA_CHAVE:?defina TRILHA_CHAVE no arquivo .env}
+      TRILHA_LIMIAR: ${TRILHA_LIMIAR:-0.70}
+      TRILHA_DIAS_RETENCAO: ${TRILHA_DIAS_RETENCAO:-365}
+    volumes:
+      - trilha_dados:/dados
+    restart: unless-stopped
+
+volumes:
+  trilha_dados:
